@@ -273,21 +273,20 @@ transition: all 0.3s ease;
 </head>
 <body>
 <div class="container">
-<input type="hidden" id="currentFormKey" />
+<input id="currentFormKey" type="hidden"/>
 <h1>Fenomen Çocuk Kulübü<br/>Ödev Takibi</h1>
 <label for="date">Tarih:</label>
 <input id="date" type="date"/>
 <label for="teacherSelect">Öğretmen:</label>
 <select id="teacherSelect">
-  <option value="">-- Öğretmen Seçin --</option>
-  <option value="fen">Ferhat Bey (Fen Bilimleri)</option>
-  <option value="matematik">Hüseyin Bey (Matematik)</option>
-  <option value="sosyal">Gülçin Hanım (Sosyal Bilgiler)</option>
-  <option value="turkce">Müşerref Hanım (Türkçe)</option>
-  <option value="ingilizce">Sedef Hanım (İngilizce)</option>
-  <option value="matematik">Büşra Hanım (Matematik)</option>
+<option value="">-- Öğretmen Seçin --</option>
+<option value="fen">Ferhat Bey (Fen Bilimleri)</option>
+<option value="matematik">Hüseyin Bey (Matematik)</option>
+<option value="sosyal">Gülçin Hanım (Sosyal Bilgiler)</option>
+<option value="turkce">Müşerref Hanım (Türkçe)</option>
+<option value="ingilizce">Sedef Hanım (İngilizce)</option>
+<option value="matematik">Büşra Hanım (Matematik)</option>
 </select>
-
 <!-- Eklenen: Sınıf düzeyi ve ünite seçimi -->
 <div style="border-top: 2px dashed #ffa94d; margin: 15px 0; padding: 10px 0;">
 <label for="gradeLevel" style="font-weight:bold; color:#e65c00;">Sınıf Düzeyi:</label>
@@ -314,16 +313,15 @@ transition: all 0.3s ease;
 </select>
 <div class="student-grid" id="students"></div>
 <div class="action-buttons">
-  <button onclick="printReport()"><span>🖨️</span> Yazdır</button>
-  <button onclick="saveFormToLocalStorage()"><span>💾</span> Kaydet</button>
-  <button onclick="loadFormFromLocalStorage()"><span>📂</span> Yükle</button>
-  <button onclick="clearLocalStorageForm()"><span>🗑️</span> Sil</button>
-  <button onclick="updateFormInLocalStorage()">🔁 Güncelle</button>
- <button onclick="refreshForm()">🔄 Yenile</button>
+<button onclick="printReport()"><span>🖨️</span> Yazdır</button>
+<button onclick="saveFormToLocalStorage()"><span>💾</span> Kaydet</button>
+<button onclick="loadFormFromLocalStorage()"><span>📂</span> Yükle</button>
+<button onclick="clearLocalStorageForm()"><span>🗑️</span> Sil</button>
+<button onclick="updateFormInLocalStorage()">🔁 Güncelle</button>
+<button onclick="refreshForm()">🔄 Yenile</button>
 </div>
 </div>
 <div id="print-area" style="display:none;"></div>
-
 <script>
     const studentData = {
       '8A': ["ENSAR AYGÜN","MAHMUT EGE AYHAN","KAYRA BAŞAR","İPEK BÜBER","ELBİM HİKMET DEMİREL","NİDA CEYLİN DOĞAN","CENGİZ TUNÇ IŞIK","ALİ KAAN KALE","DENİZ KARAÇAYIR","ASYA KAZAK","MÜJDAT KİLİMCİ","BERRİN PAMUKÇU","ASYA TUNÇ","NEVA TUNÇ","EYMEN VURAL","TOPRAK YILMAZ","YAĞIZ DOĞAÇ ÖZKAYNAK","ALİ NEZİH ÖZTÜRK","GÜNEY ÖZYURTERİ"],
