@@ -88,7 +88,7 @@
       margin-bottom: 10px;
     }
     
-.student-grid {
+.-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 10px;
@@ -98,7 +98,7 @@
 }
 
     
-.student-card {
+.-card {
   display: flex;
   flex-direction: column;
   background: #fff5eb;
@@ -112,12 +112,12 @@
   cursor: pointer;
 }
 
-.student-card:hover {
+.-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* hover'da vurgulama */
 } 
    
-.student-name {
+.-name {
   font-size: 16px;
   font-weight: bold;
   word-break: break-word;
@@ -125,10 +125,10 @@
   transition: color 0.3s ease;
 }
 
-.student-card:hover .student-name {
+.-card:hover .-name {
   color: #e65c00;
 }
-    .student-status {
+    .-status {
       width: 35%;
     }
     button {
@@ -199,30 +199,30 @@ transition: all 0.3s ease;
   transform: scale(1.05); /* %5 büyüme */
 }
 
-.student-status-row {
+.-status-row {
   justify-content: space-between;
   align-items: center;
   display: flex;
   gap: 6px;
 }
 
-.student-status-row select {
+.-status-row select {
   flex-grow: 1;
 }
 
-.student-status-row .whatsapp-btn {
+.-status-row .whatsapp-btn {
   flex-shrink: 0;
   white-space: nowrap;
 }
 
-.student-status-row select {
+.-status-row select {
   flex: 1.3;
   padding: 10px;
   font-size: 16px;
   border-radius: 8px;
 }
 
-.student-status-row .whatsapp-btn {
+.-status-row .whatsapp-btn {
   flex: 0.6;
   font-size: 18px;
   padding: 10px 14px;
@@ -233,7 +233,7 @@ transition: all 0.3s ease;
 }
 
 
-.student-status-row .whatsapp-btn {
+.-status-row .whatsapp-btn {
   flex: 0.5;
   font-size: 14px;
   padding: 6px 8px;
@@ -311,7 +311,7 @@ transition: all 0.3s ease;
 <option value="8B">8B</option>
 <option value="8C">8C</option>
 </select>
-<div class="student-grid" id="students"></div>
+<div class="-grid" id="s"></div>
 <div class="action-buttons">
 <button onclick="printReport()"><span>🖨️</span> Yazdır</button>
 <button onclick="saveFormToLocalStorage()"><span>💾</span> Kaydet</button>
@@ -324,10 +324,10 @@ transition: all 0.3s ease;
 <div id="print-area" style="display:none;"></div>
 <script>
     const studentData = {
-      '8A': ["ENSAR AYGÜN","MAHMUT EGE AYHAN","KAYRA BAŞAR","İPEK BÜBER","ELBİM HİKMET DEMİREL","NİDA CEYLİN DOĞAN","CENGİZ TUNÇ IŞIK","ALİ KAAN KALE","DENİZ KARAÇAYIR","ASYA KAZAK","MÜJDAT KİLİMCİ","BERRİN PAMUKÇU","ASYA TUNÇ","NEVA TUNÇ","EYMEN VURAL","TOPRAK YILMAZ","YAĞIZ DOĞAÇ ÖZKAYNAK","ALİ NEZİH ÖZTÜRK","GÜNEY ÖZYURTERİ","BUĞLEM CESUR"],
-      '8B': ["AYBERK AKGÜL","NECDET AHMET ALAŞAN","ONURAY ALBAN","AHMET GÖKMEN","ESMA GÖKTEPE","ALMİLA GÜRÇİÇEK","EFE KALELİ","BEREN KURT","EMİR CİHAN KURT","YÜSRA KÜÇÜKSOKU","KUZEY EROL MUTLU","GÜLSİMA OYAMAK","NAR TUTAR","SALİHA BUSE TÜMTÜRK","EREN ALP YAĞLI","ÖZÜM YILMAZ","EZGİ ZORBAŞ","ECRİN ÖĞMEN"],
-      '8C': ["YAĞMUR GÜLEN ALA","SELEN ATABEY","BETÜL İLKİM AYDIN","İREM BAĞCI","KAAN GÖKTEPE","SERENAY GÖNEN","FURKAN AHMET GÖNENÇ","ADA HELVACIOĞLU","DAMLA HELVACIOĞLU","EGEMEN IŞIK","AHMET ALİ TUNA","DAMLA UZUN","EGEHAN YALINIZ","DİLARA ELA YENİGÜL","REYHAN YILDIRIM","İLKİN ECRİN YILDIRIM"]
-    };
+  '8A': ["ENSAR AYGÜN", "MAHMUT EGE AYHAN", "KAYRA BAŞAR", "İPEK BÜBER", "ELBİM HİKMET DEMİREL", "NİDA CEYLİN DOĞAN", "CENGİZ TUNÇ IŞIK", "ALİ KAAN KALE", "DENİZ KARAÇAYIR", "ASYA KAZAK", "MÜJDAT KİLİMCİ", "BERRİN PAMUKÇU", "ASYA TUNÇ", "NEVA TUNÇ", "EYMEN VURAL", "TOPRAK YILMAZ", "YAĞIZ DOĞAÇ ÖZKAYNAK", "ALİ NEZİH ÖZTÜRK", "BUĞLEM CESUR"],
+  '8B': ["AYBERK AKGÜL", "NECDET AHMET ALAŞAN", "ONURAY ALBAN", "AHMET GÖKMEN", "ESMA GÖKTEPE", "ALMİLA GÜRÇİÇEK", "EFE KALELİ", "BEREN KURT", "EMİR CİHAN KURT", "YÜSRA KÜÇÜKSOKU", "KUZEY EROL MUTLU", "GÜLSİMA OYAMAK", "SALİHA BUSE TÜMTÜRK", "EREN ALP YAĞLI", "ÖZÜM YILMAZ", "EZGİ ZORBAŞ", "ECRİN ÖĞMEN"],
+  '8C': ["YAĞMUR GÜLEN ALA", "SELEN ATABEY", "BETÜL İLKİM AYDIN", "KAAN GÖKTEPE", "SERENAY GÖNEN", "FURKAN AHMET GÖNENÇ", "ADA HELVACIOĞLU", "DAMLA HELVACIOĞLU", "EGEMEN IŞIK", "AHMET ALİ TUNA", "EGEHAN YALINIZ", "DİLARA ELA YENİGÜL", "REYHAN YILDIRIM", "İLKİN ECRİN YILDIRIM"]
+};
 
 const teachers = {
   fen: { name: "Ferhat Bey", subject: "Fen Bilimleri" },
