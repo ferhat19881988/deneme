@@ -341,8 +341,9 @@ const teachers = {
       const selectedClass = this.value;
       const container = document.getElementById("s");
       container.innerHTML = "";
-      if (!Data[selectedClass]) return;
-      Data[selectedClass].slice().sort().forEach(name => {
+      if (!studentData[selectedClass]) return;
+studentData[selectedClass].slice().sort().forEach(name => { ... });
+
         const div = document.createElement("div");
         div.className = "-card";
         div.innerHTML = `
