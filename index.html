@@ -89,6 +89,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      min-width: 0; /* Neden: küçük ekranlarda taşma olmasın */
     }
     .student-status-row select {
       flex: 1 1 auto;
@@ -96,7 +97,10 @@
       font-size: 16px;
       border-radius: 8px;
       min-height: 40px;
+      min-width: 0; /* Neden: içerik genişliği taşmasın */
     }
+
+    /* ——— WhatsApp düğmesi: genişlemeyi engelle ——— */
     .whatsapp-btn {
       background-color: #25D366;
       border: none;
@@ -114,6 +118,7 @@
       transition: all 0.3s ease;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      width: auto !important; /* <- kritik: global button genişliğini geçersiz kıl */
     }
     .whatsapp-btn:hover {
       background-color: #1ebe5b;
@@ -121,6 +126,7 @@
       transform: scale(1.03);
     }
 
+    /* Global button: sadece genel aksiyonlar için tam genişlik */
     button {
       width: 100%;
       padding: 12px;
@@ -130,8 +136,10 @@
       font-size: 18px;
       border-radius: 10px;
       cursor: pointer;
-      min-height: 44px; /* dokunmatik hedef */
+      min-height: 44px;
     }
+    /* Öğrenci satırındaki butonlar tam genişlik olmasın */
+    .student-status-row button { width: auto; padding: 8px 10px; font-size: 14px; background-color: #25D366; }
 
     .action-buttons {
       display: grid;
@@ -289,7 +297,6 @@
     </div>
   </div>
 
-  <!-- Yazdırma alanı (iframe yöntemi için içerik buraya yazılmaz, JS içinde oluşturulur) -->
   <div id="print-area" class="print-area" style="display:none;"></div>
 
   <script>
@@ -301,7 +308,7 @@
 
     const teachers = {
       fen: { name: "Ferhat Bey", subject: "Fen Bilimleri" },
-      matematik: { name: "Büşra Hanım", subject: "Matematik" }, // Not: Objede aynı anahtar tekrar edilmesin diye son tanım geçerli kalır
+      matematik: { name: "Büşra Hanım", subject: "Matematik" },
       sosyal: { name: "Gülçin Hanım", subject: "Sosyal Bilgiler" },
       turkce: { name: "Müşerref Hanım", subject: "Türkçe" },
       ingilizce: { name: "Sedef Hanım", subject: "İngilizce" }
@@ -425,7 +432,6 @@
 </body>
 </html>`.trim();
 
-      /* Neden iframe: iOS/Android tarayıcılarda popup bloklanmasını ve stil kayıplarını önler */
       const iframe = document.createElement('iframe');
       iframe.setAttribute('sandbox', 'allow-modals allow-same-origin allow-top-navigation-by-user-activation');
       iframe.style.position = 'fixed';
@@ -441,16 +447,13 @@
       doc.write(printContent);
       doc.close();
 
-      // iOS Safari için küçük gecikme; render tamamlanmadan print çağırılmasın
       setTimeout(() => {
         try {
           iframe.contentWindow.focus();
           iframe.contentWindow.print();
         } catch (e) {
-          // Yedek: mevcut pencere yazdır
           window.print();
         } finally {
-          // iOS'ta bazen hemen kaldırılamıyor; kısa gecikmeyle kaldır
           setTimeout(() => iframe.remove(), 500);
         }
       }, 250);
