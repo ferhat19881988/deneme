@@ -301,149 +301,149 @@ document.getElementById("classSelect").addEventListener("change", function () {
    Yazdırma (iOS uyumlu: iframe ile)
    -------------------------- */
 function printReport() {
-  const rawDate = document.getElementById("date").value;
-  const grade = document.getElementById("gradeLevel").value;
-  const unit = document.getElementById("unitSelect").value;
-  const homework = document.getElementById("homework").value;
-  const selectedClass = document.getElementById("classSelect").value;
-  const teacherKey = document.getElementById("teacherSelect").value;
-  const teacherInfo = teachers[teacherKey];
-  const teacher = teacherInfo?.name || teacherKey;
-  const students = document.querySelectorAll(".student-card");
+  // --- 1) Verileri topla (hata toleranslı) ---
+  var $ = function(id){ return document.getElementById(id); };
+  var rawDate = ($("date")||{}).value || "";
+  var grade = ($("gradeLevel")||{}).value || "";
+  var unit = ($("unitSelect")||{}).value || "";
+  var homework = (($("homework")||{}).value || "").trim();
+  var selectedClass = ($("classSelect")||{}).value || "";
+  var teacherKey = ($("teacherSelect")||{}).value || "";
 
-  if (!rawDate || !grade || !unit || !homework || !selectedClass) {
-    Swal.fire({ icon:'warning', title:'Eksik Alan!', text:'Tarih, sınıf, ünite ve ödev bilgilerini doldurunuz.', confirmButtonText:'Tamam' });
-    return;
-  }
-  if (!teacher) {
-    Swal.fire({ icon:'warning', title:'Öğretmen Seçilmedi', text:'Lütfen öğretmen seçiniz.', confirmButtonText:'Tamam' });
-    return;
-  }
-  if (students.length === 0) {
-    Swal.fire({ icon:'error', title:'Öğrenci Bulunamadı', text:'Seçilen sınıfa ait öğrenci bulunamadı.', confirmButtonText:'Tamam' });
+  var teacherInfo = (window.teachers && window.teachers[teacherKey]) ? window.teachers[teacherKey] : null;
+  var teacher = teacherInfo ? (teacherInfo.name || teacherKey) : (teacherKey || "");
+
+  if (!rawDate || !grade || !unit || !homework || !selectedClass || !teacher) {
+    if (typeof Swal !== "undefined") {
+      Swal.fire({icon:'warning', title:'Eksik Alan!', text:'Tarih, sınıf, ünite, ödev ve öğretmen zorunlu.', confirmButtonText:'Tamam'});
+    }
     return;
   }
 
-  const dateParts = rawDate.split("-");
-  const dateFormatted = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+  // --- 2) Öğrencileri tara ---
+  var students = document.querySelectorAll(".student-card");
+  if (!students || students.length === 0) {
+    if (typeof Swal !== "undefined") {
+      Swal.fire({icon:'error', title:'Öğrenci Bulunamadı', text:'Seçilen sınıfa ait öğrenci yok.', confirmButtonText:'Tamam'});
+    }
+    return;
+  }
 
-  let yapanlar = "";
-  let yapmayanlar = "";
-  students.forEach(card => {
-    const name = card.querySelector(".student-name").innerText.replace("▪ ", "");
-    const status = card.querySelector(".student-status").value;
-    const label = card.querySelector(".student-status").selectedOptions[0].text;
-    const row = `<tr><td>${name}</td><td>${label}</td></tr>`;
+  // Tarih: YYYY-MM-DD -> DD.MM.YYYY
+  var parts = rawDate.split("-");
+  var dateFormatted = parts.length === 3 ? (parts[2]+"."+parts[1]+"."+parts[0]) : rawDate;
+
+  // Satırları oluştur
+  var yapanlar = "", yapmayanlar = "";
+  students.forEach(function(card){
+    var nameEl = card.querySelector(".student-name");
+    var statusSel = card.querySelector(".student-status");
+    if (!nameEl || !statusSel) return;
+    var name = (nameEl.innerText || "").replace("▪ ","");
+    var status = statusSel.value;
+    var label = statusSel.options[statusSel.selectedIndex].text;
+    var row = "<tr><td>"+name+"</td><td>"+label+"</td></tr>";
     if (status === "yaptı") yapanlar += row; else yapmayanlar += row;
   });
 
-  const printContent = `
-  <!DOCTYPE html>
-  <html><head>
-    <meta charset="utf-8" />
-    <title>Ödev Raporu - ${dateFormatted} - ${selectedClass} - ${unit}</title>
-    <style>
-      body { font-family: Arial, sans-serif; margin: 20px; }
-      h1 { color: #e65c00; text-align: center; }
-      table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-      th, td { border: 1px solid #555; padding: 6px; text-align: left; }
-      th { background: #ffe0cc; }
-      .section-title { font-size: 18px; color: #e65c00; margin-top: 20px; }
-      .page-break { page-break-before: always; }
-    </style>
-  </head>
-  <body>
-    <h1>Fenomen Çocuk Kulübü - Ödev Takibi</h1>
-    <p><strong>Öğretmen:</strong> ${teacher}</p>
-    <p><strong>Sınıfı:</strong> ${selectedClass}</p>
-    <p><strong>Ünite:</strong> ${unit}</p>
-    <p><strong>Ödev:</strong> ${homework}<span style="float:right; font-weight:bold; text-decoration:underline; color:#000;">${dateFormatted}</span></p>
+  // --- 3) Sayfa üstüne tek bir "print-only" katmanı kur ---
+  // Not: Bazı sitelerde mevcut @media print kuralları DOM'u gizleyip Safari'de boş sayfa üretiyor.
+  // Aşağıdaki "visibility" tekniği, yalnızca bizim kapsayıcımızı görünür tutar ve boş baskıyı engeller.
+  var printRoot = document.createElement("div");
+  printRoot.id = "print-root-inline";
+  printRoot.setAttribute("aria-hidden","true");
+  printRoot.style.position = "fixed";
+  printRoot.style.inset = "0";
+  printRoot.style.background = "white";
+  printRoot.style.zIndex = "2147483647"; // en üstte
 
-    <h2 class="section-title">✅ Ödevi Yapanlar</h2>
-    <table>
-      <tr><th>Öğrenci Adı</th><th>Durumu</th></tr>
-      ${yapanlar}
-    </table>
+  var css = [
+    "@page{ size:A4 portrait; margin:1cm; }",
+    "body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }",
+    // Varsayılan: her şeyi gizle
+    "@media print { body * { visibility: hidden !important; } }",
+    // Sadece bizim alan ve içindekiler görünsün
+    "@media print { #print-root-inline, #print-root-inline * { visibility: visible !important; } }",
+    // Yerleşimi garanti et
+    "@media print { #print-root-inline { position: absolute !important; left:0; top:0; right:0; } }",
+    // Basit stiller
+    "#print-root-inline .wrap{ font-family:Arial,Helvetica,sans-serif; color:#333; padding:20px; }",
+    "#print-root-inline h1{ color:#e65c00; text-align:center; margin:0 0 6px; }",
+    "#print-root-inline p{ margin:4px 0; }",
+    "#print-root-inline table{ width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }",
+    "#print-root-inline th,#print-root-inline td{ border:1px solid #555; padding:6px; text-align:left; }",
+    "#print-root-inline th{ background:#ffe0cc; color:#333; }",
+    "#print-root-inline .title{ font-size:18px; color:#e65c00; margin:16px 0 8px; }",
+    "#print-root-inline .pb{ page-break-before:always; }"
+  ].join("\n");
 
-    <div class="page-break"></div>
+  var style = document.createElement("style");
+  style.type = "text/css";
+  style.appendChild(document.createTextNode(css));
 
-    <h1>Fenomen Çocuk Kulübü - Ödev Takibi</h1>
-    <p><strong>Öğretmen:</strong> ${teacher}</p>
-    <p><strong>Sınıfı:</strong> ${selectedClass}</p>
-    <p><strong>Ünite:</strong> ${unit}</p>
-    <p><strong>Ödev:</strong> ${homework}<span style="float:right; font-weight:bold; text-decoration:underline; color:#000;">${dateFormatted}</span></p>
+  var html =
+    '<div class="wrap">' +
+      '<h1>Fenomen Çocuk Kulübü - Ödev Takibi</h1>' +
+      '<p><strong>Öğretmen:</strong> '+teacher+'</p>' +
+      '<p><strong>Sınıfı:</strong> '+selectedClass+'</p>' +
+      '<p><strong>Ünite:</strong> '+unit+'</p>' +
+      '<p><strong>Ödev:</strong> '+homework+
+         '<span style="float:right;font-weight:bold;text-decoration:underline;color:#000;">'+dateFormatted+'</span></p>' +
+      '<h2 class="title">✅ Ödevi Yapanlar</h2>' +
+      '<table>' +
+        '<tr><th>Öğrenci Adı</th><th>Durumu</th></tr>' +
+        (yapanlar || '<tr><td colspan="2">Kayıt yok</td></tr>') +
+      '</table>' +
 
-    <h2 class="section-title">❌ Yapmayan / Eksik / Gelmeyen</h2>
-    <table>
-      <tr><th>Öğrenci Adı</th><th>Durumu</th></tr>
-      ${yapmayanlar}
-    </table>
-  </body></html>`;
+      '<div class="pb"></div>' +
 
-  // iOS uyumlu yazdırma: görünmez iframe
-  const iframe = document.createElement('iframe');
-  iframe.style.position = 'fixed';
-  iframe.style.right = '0';
-  iframe.style.bottom = '0';
-  iframe.style.width = '0';
-  iframe.style.height = '0';
-  iframe.style.border = '0';
-  document.body.appendChild(iframe);
+      '<h1>Fenomen Çocuk Kulübü - Ödev Takibi</h1>' +
+      '<p><strong>Öğretmen:</strong> '+teacher+'</p>' +
+      '<p><strong>Sınıfı:</strong> '+selectedClass+'</p>' +
+      '<p><strong>Ünite:</strong> '+unit+'</p>' +
+      '<p><strong>Ödev:</strong> '+homework+
+         '<span style="float:right;font-weight:bold;text-decoration:underline;color:#000;">'+dateFormatted+'</span></p>' +
+      '<h2 class="title">❌ Yapmayan / Eksik / Gelmeyen</h2>' +
+      '<table>' +
+        '<tr><th>Öğrenci Adı</th><th>Durumu</th></tr>' +
+        (yapmayanlar || '<tr><td colspan="2">Kayıt yok</td></tr>') +
+      '</table>' +
+    '</div>';
 
-  const doc = iframe.contentWindow || iframe.contentDocument;
-  const idoc = doc.document || doc;
-  idoc.open();
-  idoc.write(printContent);
-  idoc.close();
+  printRoot.innerHTML = html;
 
-  // Neden: iOS'ta içerik render edilmeden print çağrılırsa boş çıkar.
-  iframe.onload = () => {
-    try { (iframe.contentWindow || iframe).focus(); } catch(e){}
-    try { (iframe.contentWindow || iframe).print(); } catch(e){}
-    setTimeout(() => { document.body.removeChild(iframe); }, 1000);
-  };
-}
+  // DOM'a ekle (önce stil, sonra içerik)
+  document.documentElement.appendChild(style);
+  document.body.appendChild(printRoot);
 
-/* --------------------------
-   WhatsApp mesajı
-   -------------------------- */
-function generateWhatsappLink(name, statusIcon, statusLabel) {
-  const rawDate = document.getElementById("date").value;
-  const unit = document.getElementById("unitSelect").value;
-  const homework = document.getElementById("homework").value;
+  // --- 4) Safari/iOS boş çıktı sorununa karşı: reflow + çift rAF + küçük gecikme ---
+  // Reflow/paint'i zorla
+  void printRoot.offsetHeight;
 
-  const teacherKey = document.getElementById("teacherSelect").value;
-  const teacherInfo = teachers[teacherKey];
-  const subject = teacherInfo?.subject || unit;
-  const teacherName = teacherInfo?.name || "Öğretmen";
-
-  if (!rawDate) {
-    Swal.fire({ icon:'warning', title:'Tarih Eksik!', text:'Lütfen tarih giriniz.', confirmButtonText:'Tamam' });
-    return;
+  function cleanup() {
+    try { document.body.removeChild(printRoot); } catch(e){}
+    try { document.documentElement.removeChild(style); } catch(e){}
   }
 
-  const dateParts = rawDate.split("-");
-  const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+  // afterprint bazı iOS sürümlerinde çalışmıyor; yedek zamanlayıcı bırak
+  window.addEventListener("afterprint", function onAfter() {
+    window.removeEventListener("afterprint", onAfter);
+    setTimeout(cleanup, 80);
+  });
 
-  const message =
-`📢 *Fenomen Çocuk Kulübü - Ödev Bilgilendirme*
-
-Sayın Velim,
-
-🎓 Öğrenci: *${name}*  
-👩‍🏫 Öğretmen: *${teacherName} (${subject})*  
-📅 Tarih: *${formattedDate}*  
-📚 Konu: *${unit}*  
-📝 Ödev: *${homework}*  
-📍 Durum: ${statusIcon} *${statusLabel}*
-
-Saygılarımızla,  
-*Fenomen Çocuk Kulübü*`;
-
-  const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-  // Neden: iOS popup engeli; onclick içinde senkron açılır.
-  window.open(url, '_blank');
+  // Çift rAF + setTimeout ile boyamayı garantile
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      setTimeout(function(){
+        try { window.focus(); } catch(e){}
+        try { window.print(); } catch(e){}
+        // afterprint gelmezse fail‑safe temizlik
+        setTimeout(cleanup, 1500);
+      }, 60); // 1 frame ~16ms, toplam ~100ms bekleme
+    });
+  });
 }
+
 
 /* --------------------------
    Ünite seçeneklerini güncelle (subject bazlı)
